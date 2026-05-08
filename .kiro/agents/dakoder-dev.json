@@ -1,0 +1,20 @@
+{
+  "name": "dakoder-dev",
+  "description": "Development agent for the Dakoder project",
+  "prompt": "You are working on Dakoder, a serverless system of Lambda functions that uses coding agents to automate coding, review, and build tasks. Follow the rules in .kiro/rules.md.",
+  "mcpServers": {},
+  "tools": [
+    "*"
+  ],
+  "toolAliases": {},
+  "allowedTools": [],
+  "resources": [
+    "OVERVIEW.md",
+    "specs/**/*.md",
+    ".kiro/rules.md"
+  ],
+  "hooks": {},
+  "toolsSettings": {},
+  "includeMcpJson": true,
+  "model": null
+}

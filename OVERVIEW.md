@@ -19,19 +19,20 @@ Multiple trigger sources (TBD) — e.g., GitHub webhooks, scheduled events, API 
 
 ### Orchestrator Lambda
 
-- Written in a real language (no LLM) — handles deterministic logic
+- No LLM — pure deterministic logic
 - Receives trigger event
-- Creates a new S3 folder and performs a fresh `git pull` for the task
-- Constructs prompts based on task context
-- Manages the task lifecycle loop: code → build → review → repeat
-- Dispatches work to the appropriate worker Lambda at each stage
+- Only creates a new S3 workspace for new tasks (keyed by task ID in folder name); existing tasks reuse their workspace
+- Performs fresh git clone only on new task creation
+- Constructs prompts based on task context (initial or incorporating prior feedback)
+- All Lambda invocations are async
+- Workers can invoke each other directly in a chain (Code → Build → Review → Orchestrator)
 - When review feedback indicates changes are needed, incorporates comments into a new prompt and restarts the code step
 - Tracks iteration count to enforce max retries and avoid infinite loops
 - Can escalate or halt the task if repeated attempts fail to satisfy review
 
 ### Worker Lambdas
 
-Each worker operates on the task's existing S3 folder — they do not create new folders.
+Each worker operates on the task's existing S3 folder — they do not create new folders. All invocations are async, and workers can invoke each other directly.
 
 #### Code Lambda
 - Invokes a coding agent (Kiro/Claude Code) with the orchestrator's prompt
@@ -54,18 +55,22 @@ Trigger
   │
   ▼
 Orchestrator
-  ├── creates S3 folder + fresh git pull
+  ├── new task: creates S3 folder + fresh git clone
+  ├── existing task: reuses workspace
   │
-  └── loop:
+  └── async chain:
         Code Lambda  →  Build Lambda  →  Review Lambda
-              ▲                                  │
-              └──────── (if not approved) ───────┘
+                                               │
+                                               ▼
+                                          Orchestrator
+                                     (approved or retry)
 ```
 
 ## Storage
 
 - **S3** — shared file system
   - Each *task* gets a unique folder (e.g., `s3://dakoder-workspace/{task-id}/`)
+  - Only created once per new task; reused on retries
   - Contains the fresh git clone and all artifacts
   - All workers read/write to the same task folder
 

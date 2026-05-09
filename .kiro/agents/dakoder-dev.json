@@ -1,20 +1,36 @@
 {
   "name": "dakoder-dev",
   "description": "Development agent for the Dakoder project",
-  "prompt": "You are working on Dakoder, a serverless system of Lambda functions that uses coding agents to automate coding, review, and build tasks. Follow the rules in .kiro/rules.md.",
+  "prompt": "You are working on Dakoder, a serverless system of Lambda functions that uses coding agents to automate coding, review, and build tasks. Follow the rules in .kiro/rules.md. When you finish a task, always suggest a commit message.",
   "mcpServers": {},
   "tools": [
     "*"
   ],
   "toolAliases": {},
-  "allowedTools": [],
+  "allowedTools": [
+    "read",
+    "code",
+    "web_search",
+    "web_fetch",
+    "grep",
+    "glob"
+  ],
   "resources": [
     "file://OVERVIEW.md",
     "file://specs/**/*.md",
     "file://.kiro/rules.md"
   ],
   "hooks": {},
-  "toolsSettings": {},
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": ["./infra/**", "./orchestrator/**", "./specs/**", "./*.md", "./.kiro/**"]
+    },
+    "shell": {
+      "allowedCommands": ["npm run.*", "npm test.*", "npx cdk.*", "npx tsc.*", "tail.*", "cat.*", "ls.*"],
+      "deniedCommands": ["git push.*", "git commit.*", "git reset.*", "rm -rf.*"],
+      "autoAllowReadonly": true
+    }
+  },
   "includeMcpJson": true,
   "model": null
 }

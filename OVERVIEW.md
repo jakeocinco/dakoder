@@ -9,6 +9,7 @@ A serverless system of Lambda functions that leverages coding agents (Kiro, Clau
 - **Language:** TypeScript (all Lambdas)
 - **Agent SDK:** Claude Code SDK
 - **Runtime:** AWS Lambda (Node.js)
+- **Build:** AWS CodeBuild (runs builds/tests in isolated containers)
 - **Storage:** S3
 
 ## Architecture
@@ -39,7 +40,9 @@ Each worker operates on the task's existing S3 folder — they do not create new
 - Writes/modifies code in the task's S3 workspace
 
 #### Build Lambda
-- Runs build/test commands against the task's S3 workspace
+- Triggers an AWS CodeBuild project with the task's S3 workspace as source
+- CodeBuild runs build/test commands in a container with the appropriate toolchain
+- Captures full build output (compiler errors, test failures) for feedback to the coding agent
 - Reports success/failure back to orchestrator
 
 #### Review Lambda

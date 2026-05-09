@@ -8,6 +8,31 @@
         "id": "dakoder-stack",
         "path": "dakoder-stack",
         "children": {
+          "Workspace": {
+            "id": "Workspace",
+            "path": "dakoder-stack/Workspace",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "dakoder-stack/Workspace/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::S3::Bucket",
+                  "aws:cdk:cloudformation:props": {
+                    "bucketName": "dakoder-workspace"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3.CfnBucket",
+                  "version": "2.178.2"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_s3.Bucket",
+              "version": "2.178.2",
+              "metadata": []
+            }
+          },
           "CDKMetadata": {
             "id": "CDKMetadata",
             "path": "dakoder-stack/CDKMetadata",

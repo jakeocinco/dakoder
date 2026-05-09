@@ -1,7 +1,7 @@
 {
   "version": "39.0.0",
   "files": {
-    "43e7ee223444e1b59048d64a8cb8f9ce7f14587487155bdfdee6247a71a9197d": {
+    "cdd9260469243caf7b9d6db327b35389152b73d03284011369b3c3f0ba916b1f": {
       "source": {
         "path": "dakoder-stack.template.json",
         "packaging": "file"
@@ -9,7 +9,7 @@
       "destinations": {
         "current_account-current_region": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
-          "objectKey": "43e7ee223444e1b59048d64a8cb8f9ce7f14587487155bdfdee6247a71a9197d.json",
+          "objectKey": "cdd9260469243caf7b9d6db327b35389152b73d03284011369b3c3f0ba916b1f.json",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
         }
       }

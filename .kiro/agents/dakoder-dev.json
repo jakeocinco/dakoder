@@ -9,9 +9,9 @@
   "toolAliases": {},
   "allowedTools": [],
   "resources": [
-    "OVERVIEW.md",
-    "specs/**/*.md",
-    ".kiro/rules.md"
+    "file://OVERVIEW.md",
+    "file://specs/**/*.md",
+    "file://.kiro/rules.md"
   ],
   "hooks": {},
   "toolsSettings": {},

@@ -26,8 +26,8 @@
       "allowedPaths": ["./infra/**", "./orchestrator/**", "./specs/**", "./*.md", "./.kiro/**"]
     },
     "shell": {
-      "allowedCommands": ["npm run.*", "npm test.*", "npx cdk.*", "npx tsc.*", "tail.*", "cat.*", "ls.*"],
-      "deniedCommands": ["git push.*", "git commit.*", "git reset.*", "rm -rf.*"],
+      "allowedCommands": ["npm run.*", "npm test.*", "npx cdk.*", "npx tsc.*", "tail.*", "cat.*", "ls.*", "git add.*", "git commit.*"],
+      "deniedCommands": ["git push.*", "git reset.*", "rm -rf.*"],
       "autoAllowReadonly": true
     }
   },

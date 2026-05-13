@@ -22,5 +22,4 @@
 
 ## Git Workflow
 
-- Never commit on your own — always ask the user before committing
-- When a task is done, suggest a commit with the task number at the end of the header like: `message (X.Y)`
+- When a task is done, commit with the task number at the end of the header like: `message (X.Y)`

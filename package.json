@@ -1,5 +1,5 @@
 {
-  "workspaces": ["infra", "orchestrator"],
+  "workspaces": ["infra", "orchestrator", "builder"],
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^17.0.4",

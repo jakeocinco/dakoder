@@ -1,10 +1,13 @@
 {
+  "workspaces": ["infra", "orchestrator"],
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^17.0.4",
     "prettier": "^3.8.3"
   },
   "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
     "prepare": "husky"
   },
   "lint-staged": {

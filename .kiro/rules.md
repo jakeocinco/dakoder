@@ -6,6 +6,7 @@
 - Use the Claude Code SDK for agent invocations
 - Match existing code style and conventions
 - Read relevant spec files before implementing a task
+- Use named interfaces/types for all data shapes — no inline object types
 
 ## Architecture
 

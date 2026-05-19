@@ -6,10 +6,10 @@ import {
 
 const s3 = new S3Client();
 const getBucket = () => process.env.BUCKET_NAME!;
-const MAX_ITERATIONS = parseInt(process.env.MAX_ITERATIONS || "5");
 
 export async function getIteration(
   taskId: string,
+  maxIterations: number,
 ): Promise<{ current: number; maxReached: boolean }> {
   const bucket = getBucket();
   const key = `${taskId}/iteration.json`;
@@ -19,14 +19,14 @@ export async function getIteration(
     );
     const body = await res.Body!.transformToString();
     const current = JSON.parse(body).iteration as number;
-    return { current, maxReached: current >= MAX_ITERATIONS };
+    return { current, maxReached: current >= maxIterations };
   } catch {
     return { current: 0, maxReached: false };
   }
 }
 
 export async function incrementIteration(taskId: string): Promise<number> {
-  const { current } = await getIteration(taskId);
+  const { current } = await getIteration(taskId, Infinity);
   const next = current + 1;
   const bucket = getBucket();
   await s3.send(

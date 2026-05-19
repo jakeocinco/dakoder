@@ -1,5 +1,6 @@
 import type { Handler } from "aws-lambda";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+import { ConfigError } from "dakoder-config";
 import { generateTaskId } from "./task-id.ts";
 import { createWorkspace } from "./workspace.ts";
 import { buildPrompt } from "./prompt.ts";
@@ -7,6 +8,7 @@ import { handleCallback as processCallback } from "./callback.ts";
 import { finalize } from "./finalize.ts";
 import { trackPrompt } from "./track-prompt.ts";
 import { markFailed } from "./error.ts";
+import { loadConfig } from "./config.ts";
 
 const lambda = new LambdaClient();
 const getCodeFunctionName = () => process.env.CODE_FUNCTION_NAME!;
@@ -64,6 +66,9 @@ async function handleNewTask(event: NewTaskEvent) {
       event.branch,
       event.description,
     );
+
+    const config = await loadConfig(taskId);
+
     const prompt = buildPrompt({
       description: event.description,
       spec: event.spec,
@@ -75,12 +80,17 @@ async function handleNewTask(event: NewTaskEvent) {
       new InvokeCommand({
         FunctionName: getCodeFunctionName(),
         InvocationType: "Event",
-        Payload: Buffer.from(JSON.stringify({ taskId, prompt })),
+        Payload: Buffer.from(
+          JSON.stringify({ taskId, prompt, agentConfig: config.agents.code }),
+        ),
       }),
     );
 
     return { statusCode: 200, body: JSON.stringify({ taskId }) };
   } catch (err: any) {
+    if (err instanceof ConfigError) {
+      return { statusCode: 400, body: `Config error: ${err.message}` };
+    }
     console.error("handleNewTask failed", { event, err });
     return { statusCode: 500, body: `Internal error: ${err.message}` };
   }
@@ -94,7 +104,8 @@ async function handleCallback(event: CallbackEvent) {
     };
   }
   try {
-    const result = await processCallback(event);
+    const config = await loadConfig(event.taskId);
+    const result = await processCallback(event, config);
 
     if (result.action === "finalize") {
       await finalize({
@@ -107,6 +118,9 @@ async function handleCallback(event: CallbackEvent) {
 
     return { statusCode: 200, body: JSON.stringify(result) };
   } catch (err: any) {
+    if (err instanceof ConfigError) {
+      return { statusCode: 400, body: `Config error: ${err.message}` };
+    }
     console.error("handleCallback failed", { taskId: event.taskId, err });
     await markFailed(event.taskId, err.message);
     return { statusCode: 500, body: `Internal error: ${err.message}` };

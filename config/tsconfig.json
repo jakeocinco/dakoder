@@ -4,14 +4,14 @@
     "module": "commonjs",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "declaration": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

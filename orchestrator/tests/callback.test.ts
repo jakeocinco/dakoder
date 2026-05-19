@@ -40,9 +40,21 @@ mock.module("@aws-sdk/client-lambda", {
 
 process.env.BUCKET_NAME = "test-workspace";
 process.env.CODE_FUNCTION_NAME = "dakoder-code";
-process.env.MAX_ITERATIONS = "3";
 
 const { handleCallback } = await import("../src/callback.ts");
+
+const mockConfig = {
+  project: { name: "test" },
+  git: {
+    repo_url: "https://github.com/x/y.git",
+    default_branch: "main",
+    branch_prefix: "dakoder/",
+    credentials_secret: "arn:aws:secretsmanager:us-east-1:123:secret:x",
+  },
+  workflow: { max_iterations: 3 },
+  triggers: { enabled: ["merge"] },
+  agents: {},
+};
 
 const basePayload = {
   taskId: "my-task",
@@ -56,7 +68,10 @@ describe("handleCallback", () => {
   });
 
   it("returns finalize on approved", async () => {
-    const result = await handleCallback({ ...basePayload, status: "approved" });
+    const result = await handleCallback(
+      { ...basePayload, status: "approved" },
+      mockConfig as any,
+    );
     assert.deepStrictEqual(result, { action: "finalize", taskId: "my-task" });
   });
 
@@ -72,11 +87,10 @@ describe("handleCallback", () => {
       return {};
     });
 
-    const result = await handleCallback({
-      ...basePayload,
-      status: "rejected",
-      feedback: "needs work",
-    });
+    const result = await handleCallback(
+      { ...basePayload, status: "rejected", feedback: "needs work" },
+      mockConfig as any,
+    );
     assert.strictEqual(result.action, "retry");
   });
 
@@ -92,11 +106,10 @@ describe("handleCallback", () => {
       return {};
     });
 
-    const result = await handleCallback({
-      ...basePayload,
-      status: "rejected",
-      feedback: "still bad",
-    });
+    const result = await handleCallback(
+      { ...basePayload, status: "rejected", feedback: "still bad" },
+      mockConfig as any,
+    );
     assert.deepStrictEqual(result, {
       action: "halt",
       taskId: "my-task",

@@ -1,4 +1,5 @@
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+import type { DakoderConfig } from "dakoder-config";
 import { getIteration, incrementIteration } from "./iteration.ts";
 import { buildPrompt } from "./prompt.ts";
 
@@ -21,6 +22,7 @@ export type CallbackResult =
 
 export async function handleCallback(
   payload: CallbackPayload,
+  config: DakoderConfig,
 ): Promise<CallbackResult> {
   const { taskId, status } = payload;
 
@@ -28,7 +30,10 @@ export async function handleCallback(
     return { action: "finalize", taskId };
   }
 
-  const { maxReached } = await getIteration(taskId);
+  const { maxReached } = await getIteration(
+    taskId,
+    config.workflow.max_iterations,
+  );
   if (maxReached) {
     return { action: "halt", taskId, reason: "max iterations exceeded" };
   }
@@ -47,7 +52,9 @@ export async function handleCallback(
     new InvokeCommand({
       FunctionName: getCodeFunctionName(),
       InvocationType: "Event",
-      Payload: Buffer.from(JSON.stringify({ taskId, prompt })),
+      Payload: Buffer.from(
+        JSON.stringify({ taskId, prompt, agentConfig: config.agents.code }),
+      ),
     }),
   );
 

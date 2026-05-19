@@ -32,9 +32,25 @@ mock.module("@aws-sdk/client-lambda", {
   },
 });
 
+mock.module("../src/config.ts", {
+  namedExports: {
+    loadConfig: async () => ({
+      project: { name: "test" },
+      git: {
+        repo_url: "https://github.com/x/y.git",
+        default_branch: "main",
+        branch_prefix: "dakoder/",
+        credentials_secret: "arn:aws:secretsmanager:us-east-1:123:secret:x",
+      },
+      workflow: { max_iterations: 5 },
+      triggers: { enabled: ["merge"] },
+      agents: {},
+    }),
+  },
+});
+
 process.env.BUCKET_NAME = "test-bucket";
 process.env.CODE_FUNCTION_NAME = "test-code-fn";
-process.env.MAX_ITERATIONS = "5";
 
 const { handler } = await import("../src/index.ts");
 

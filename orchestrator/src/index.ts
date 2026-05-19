@@ -113,8 +113,6 @@ async function handleCallback(event: CallbackEvent) {
       await finalize({
         taskId: result.taskId,
         description: event.description,
-        repoUrl: "",
-        branch: "",
       });
     }
 

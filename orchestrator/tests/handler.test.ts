@@ -18,6 +18,9 @@ mock.module("@aws-sdk/client-s3", {
     GetObjectCommand: class {
       constructor() {}
     },
+    ListObjectsV2Command: class {
+      constructor() {}
+    },
   },
 });
 
@@ -46,6 +49,30 @@ mock.module("../src/config.ts", {
       triggers: { enabled: ["merge"] },
       agents: {},
     }),
+  },
+});
+
+mock.module("../src/push-pr.ts", {
+  namedExports: {
+    pushBranchAndOpenPR: async () => ({
+      prUrl: "https://github.com/x/y/pull/1",
+    }),
+  },
+});
+
+mock.module("../src/git.ts", {
+  namedExports: {
+    getGitToken: async () => "fake-token",
+    cloneRepo: async () => {},
+  },
+});
+
+mock.module("node:fs/promises", {
+  namedExports: {
+    mkdir: async () => {},
+    writeFile: async () => {},
+    readFile: async () => Buffer.from(""),
+    readdir: async () => [],
   },
 });
 

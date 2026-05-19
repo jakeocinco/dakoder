@@ -8,6 +8,7 @@ export interface AgentResult {
 export async function runAgent(
   prompt: string,
   cwd: string,
+  maxTurns: number = 25,
 ): Promise<AgentResult> {
   let result: AgentResult = { success: false, error: "No result received" };
 
@@ -18,7 +19,7 @@ export async function runAgent(
       allowedTools: ["Read", "Write", "Edit", "Glob", "Grep"],
       permissionMode: "bypassPermissions",
       allowDangerouslySkipPermissions: true,
-      maxTurns: 25,
+      maxTurns,
       settingSources: [],
     },
   })) {

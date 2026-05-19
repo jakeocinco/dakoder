@@ -58,8 +58,9 @@ async function handleNewTask(event: NewTaskEvent) {
       body: "Malformed new-task event: missing required fields",
     };
   }
+
+  const taskId = generateTaskId(event.description);
   try {
-    const taskId = generateTaskId(event.description);
     await createWorkspace(
       taskId,
       event.repoUrl,
@@ -88,10 +89,11 @@ async function handleNewTask(event: NewTaskEvent) {
 
     return { statusCode: 200, body: JSON.stringify({ taskId }) };
   } catch (err: any) {
+    console.error("handleNewTask failed", { taskId, err });
+    await markFailed(taskId, err.message);
     if (err instanceof ConfigError) {
       return { statusCode: 400, body: `Config error: ${err.message}` };
     }
-    console.error("handleNewTask failed", { event, err });
     return { statusCode: 500, body: `Internal error: ${err.message}` };
   }
 }

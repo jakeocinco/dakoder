@@ -1,4 +1,4 @@
-export {
+export type {
   ProjectConfig,
   GitConfig,
   WorkflowConfig,
@@ -6,7 +6,6 @@ export {
   AgentConfig,
   AgentsConfig,
   DakoderConfig,
-  VALID_TRIGGERS,
-  DEFAULTS,
-  ConfigError,
 } from "./types.ts";
+export { VALID_TRIGGERS, DEFAULTS, ConfigError } from "./types.ts";
+export { parseConfig } from "./parse.ts";

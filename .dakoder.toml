@@ -1,0 +1,22 @@
+[project]
+name = "dakoder"
+
+[git]
+repo_url = "https://github.com/jacobcarlson/dakoder.git"
+default_branch = "main"
+branch_prefix = "dakoder/"
+credentials_secret = "arn:aws:secretsmanager:us-east-1:123456789:secret:dakoder-github-token"
+
+[workflow]
+max_iterations = 5
+
+[triggers]
+enabled = ["pr_comment", "merge"]
+
+[agents.code]
+prompt_file = ".dakoder/code-prompt.md"
+max_turns = 25
+
+[agents.review]
+prompt_file = ".dakoder/review-prompt.md"
+max_turns = 10

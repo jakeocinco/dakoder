@@ -4,10 +4,12 @@
 
 - Trigger event (format varies by source)
 - Task definition:
-  - Repo URL
-  - Branch name
   - Description of work to be done
+  - Spec (detailed requirements)
   - Task ID (if resuming existing task)
+- Environment variables (set by CDK from `.dakoder.toml`):
+  - `REPO_URL`, `DEFAULT_BRANCH`, `BRANCH_PREFIX`, `GIT_CREDENTIALS_SECRET`
+  - `BUCKET_NAME`, `MAX_ITERATIONS`, `CODE_FUNCTION_NAME`
 
 ## Outputs
 
@@ -19,12 +21,13 @@
 
 - No LLM usage — pure deterministic logic
 - Only creates a new S3 workspace for new tasks (keyed by task ID in folder name)
-- Existing tasks reuse their workspace: `s3://dakoder-workspace/{task-id}/`
-- Performs fresh git clone only on new task creation
+- Existing tasks reuse their workspace: `s3://{bucket}/{task-id}/`
+- Performs fresh git clone only on new task creation using `GIT_CREDENTIALS_SECRET` env var
+- Reads `.dakoder.toml` from S3 workspace after clone for workflow/agent config
 - Constructs prompts for the Code Lambda (initial + incorporating feedback on retries)
 - All Lambda invocations are async
 - Worker Lambdas can invoke each other directly (not just orchestrator → worker)
-- Tracks iteration count, enforces max retry limit
+- Tracks iteration count, enforces max retry limit (from config `workflow.max_iterations`)
 - On approval: pushes branch, opens PR, notifies
 - On max retries exceeded: halts and reports failure
 
@@ -32,16 +35,17 @@
 
 1. Parse trigger event, extract task definition
 2. Determine if new or existing task
-   - **New task:** generate task ID, create S3 folder `s3://dakoder-workspace/{task-id}/`, git clone
+   - **New task:** generate task ID, create S3 folder, git clone using env var credentials
    - **Existing task:** reuse existing workspace
-3. Build prompt (initial for new, or append feedback for retry)
-4. Async invoke Code Lambda with `{ taskId, prompt }`
+3. Load `.dakoder.toml` from S3 workspace, parse with `parseConfig()`
+4. Build prompt (initial for new, or append feedback for retry)
+5. Async invoke Code Lambda with `{ taskId, prompt, agentConfig }`
    - Code Lambda async invokes Build Lambda on completion
    - Build Lambda async invokes Review Lambda on success (or Orchestrator on failure)
    - Review Lambda async invokes Orchestrator with result
-5. On callback from Review:
+6. On callback from Review:
    - Approved → push branch, open PR, return success
-   - Rejected → increment iteration, rebuild prompt with feedback, restart at step 4
+   - Rejected → increment iteration, rebuild prompt with feedback, restart at step 5
    - Max retries exceeded → halt, report failure
 
 ## Implementation Tasks
@@ -56,3 +60,8 @@
 8. **Iteration tracking** — Store and increment retry count per task (S3 or DynamoDB), enforce max limit
 9. **Finalization** — On approval: push branch, open PR, send notification
 10. **Error handling** — Timeouts, invoke failures, malformed payloads
+11. **Wire up handler** — Connect skeleton to implementations
+12. **Git clone** — Clone repo into workspace using env var credentials
+13. **Git push and PR** — Push branch, open PR using env var credentials
+14. **Notification** — Send completion/failure notification
+15. **Prompt tracking** — Write prompts to S3 for auditability

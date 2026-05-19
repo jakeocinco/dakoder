@@ -101,7 +101,8 @@ Uses `smol-toml` — zero dependencies, TypeScript-native, TOML v1.1.0 compliant
 
 ## Consumers
 
-- **Orchestrator** — parses config, uses workflow/trigger/git settings, passes agent config downstream
+- **CDK** — reads `.dakoder.toml` at synth time, uses all fields to configure the stack (env vars, IAM permissions, resource names)
+- **Orchestrator** — reads `.dakoder.toml` from S3 workspace at runtime for workflow/agent config
 - **Code Lambda** — receives agent config (`prompt_file`, `max_turns`) in event payload, applies to agent invocation
 - **Review Lambda** — receives agent config in event payload (future)
 

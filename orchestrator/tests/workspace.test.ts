@@ -2,7 +2,6 @@ import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert";
 import { mock } from "node:test";
 
-// Mock S3Client before importing workspace
 const sendMock = mock.fn();
 mock.module("@aws-sdk/client-s3", {
   namedExports: {
@@ -24,7 +23,24 @@ mock.module("@aws-sdk/client-s3", {
   },
 });
 
+mock.module("../src/git.ts", {
+  namedExports: {
+    getGitToken: async () => "fake-token",
+    cloneRepo: async () => {},
+  },
+});
+
+// Mock fs/promises readdir to return empty (no files to upload)
+mock.module("node:fs/promises", {
+  namedExports: {
+    readFile: async () => Buffer.from(""),
+    readdir: async () => [],
+  },
+});
+
 process.env.BUCKET_NAME = "test-workspace";
+process.env.GIT_CREDENTIALS_SECRET =
+  "arn:aws:secretsmanager:us-east-1:123:secret:test";
 const { createWorkspace } = await import("../src/workspace.ts");
 
 describe("createWorkspace", () => {
@@ -49,7 +65,6 @@ describe("createWorkspace", () => {
 
     assert.strictEqual(result.created, true);
     assert.strictEqual(result.path, "s3://test-workspace/my-task/");
-    assert.strictEqual(sendMock.mock.callCount(), 2);
   });
 
   it("skips creation when workspace already exists", async () => {

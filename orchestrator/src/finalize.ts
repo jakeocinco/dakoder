@@ -7,6 +7,7 @@ import {
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { pushBranchAndOpenPR } from "./push-pr.ts";
+import { notify } from "./notify.ts";
 
 const s3 = new S3Client();
 const getBucket = () => process.env.BUCKET_NAME!;
@@ -45,6 +46,13 @@ export async function finalize(input: FinalizeInput): Promise<FinalizeResult> {
       ContentType: "application/json",
     }),
   );
+
+  await notify({
+    taskId: input.taskId,
+    status: "complete",
+    message: input.description,
+    prUrl,
+  });
 
   return { taskId: input.taskId, status: "complete", prUrl };
 }
